@@ -42,8 +42,8 @@ OPT = -Ofast
 else
 OPT = -O3
 endif
-CFLAGS   = -I.              $(OPT) -std=c11   -fPIC
-CXXFLAGS = -I. -I./examples $(OPT) -std=c++11 -fPIC
+CFLAGS   = -I. -I./include/vulkan              $(OPT) -std=c11   -fPIC
+CXXFLAGS = -I. -I./examples -I./include/vulkan $(OPT) -std=c++11 -fPIC
 LDFLAGS  =
 
 ifdef LLAMA_DEBUG
@@ -228,7 +228,7 @@ endif # LLAMA_METAL
 ifdef LLAMA_VULKAN
 	CFLAGS  += -DGGML_USE_VULKAN
 	CXXFLAGS  += -DGGML_USE_VULKAN
-	LDFLAGS += -lvulkan -lopenblas -lcblas
+	LDFLAGS +=
 	OBJS    += ggml-vulkan.o
 ggml-vulkan.o: ggml-vulkan.cpp ggml-vulkan.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
@@ -325,7 +325,7 @@ clean:
 # Examples
 #
 main: examples/main/main.cpp                                  build-info.h ggml.o llama.o common.o $(OBJS)
-	$(CXX) $(CXXFLAGS) $(filter-out %.h,$^) -o $@ $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) $(filter-out %.h,$^) lib/vulkan-1.lib -o $@ $(LDFLAGS)
 	@echo
 	@echo '====  Run ./main -h for help.  ===='
 	@echo

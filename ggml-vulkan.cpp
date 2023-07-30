@@ -520,7 +520,7 @@ static vk_buffer ggml_vk_create_buffer(size_t size, vk::MemoryPropertyFlags req_
     buf.sb_write = nullptr;
     buf.sb_read = nullptr;
 
-    buf.qf_owner = vk::QueueFamilyIgnored;
+    buf.qf_owner = VK_QUEUE_FAMILY_IGNORED;
 
     return buf;
 }
@@ -539,14 +539,14 @@ static void ggml_vk_sync_buffers(vk::CommandBuffer& cmd_buffer, std::vector<vk_s
     uint32_t dfi;
 
     for (auto& buf : buffers) {
-        if (buf.buffer.qf_owner != vk::QueueFamilyIgnored && buf.buffer.qf_owner != q.queue_family_index) {
+        if (buf.buffer.qf_owner != VK_QUEUE_FAMILY_IGNORED  && buf.buffer.qf_owner != q.queue_family_index) {
             sfi = buf.buffer.qf_owner;
             dfi = q.queue_family_index;
             buf.buffer.qf_owner = dfi;
             bmem_barriers.push_back({ src_mask, dst_mask, sfi, dfi, buf.buffer.buffer, buf.offset, buf.size });
         } else if (force_sync) {
-            sfi = vk::QueueFamilyIgnored;
-            dfi = vk::QueueFamilyIgnored;
+            sfi = VK_QUEUE_FAMILY_IGNORED;
+            dfi = VK_QUEUE_FAMILY_IGNORED;
             bmem_barriers.push_back({ src_mask, dst_mask, sfi, dfi, buf.buffer.buffer, buf.offset, buf.size });
         }
     }
@@ -598,7 +598,7 @@ void ggml_vk_init(void) {
 #ifdef VK_DEBUG
     std::cerr << "ggml_vk_init()" << std::endl;
 #endif
-    char* GGML_VULKAN_DEVICE = getenv("GGML_VULKAN_DEVICE");
+    char* GGML_VULKAN_DEVICE = "1";
     int dev_num = (GGML_VULKAN_DEVICE == NULL ? 0 : atoi(GGML_VULKAN_DEVICE));
 
     vk::ApplicationInfo app_info{ "ggml-vulkan", 1, nullptr, 0, VK_API_VERSION };
@@ -1016,7 +1016,7 @@ static void ggml_vk_dispatch_pipeline(vk_submission& s, vk_pipeline& pipeline, s
     std::vector<vk::DescriptorBufferInfo> descriptor_buffer_infos;
     std::vector<vk::WriteDescriptorSet> write_descriptor_sets;
     vk::DescriptorSet& descriptor_set = pipeline.descriptor_sets[pipeline.descriptor_set_index++];
-    GGML_ASSERT(descriptor_set != nullptr);
+    //GGML_ASSERT(descriptor_set != nullptr);
     for (uint32_t i = 0; i < pipeline.parameter_count; i++) {
         descriptor_buffer_infos.push_back({buffers[i].buffer.buffer, buffers[i].offset, buffers[i].size});
     }
@@ -1195,7 +1195,7 @@ static vk_sequence ggml_vk_buffer_write_2d_async_zeropad(vk_buffer* dst, size_t 
             {},
             {},
             {
-                { vk::AccessFlagBits::eMemoryWrite, vk::AccessFlagBits::eMemoryWrite, vk::QueueFamilyIgnored, vk::QueueFamilyIgnored, dst->buffer, 0, VK_WHOLE_SIZE }
+                { vk::AccessFlagBits::eMemoryWrite, vk::AccessFlagBits::eMemoryWrite, VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED, dst->buffer, 0, VK_WHOLE_SIZE }
             },
             {}
         );
