@@ -20,7 +20,7 @@ jobs:
         echo $CONDA/bin >> $GITHUB_PATH
     - name: Install PyInstaller
       run: |
-        pip install PyInstaller python3-tk
+        pip install PyInstaller tk
     - name: Run Make
       run: |
         ./make_pyinstaller.bat 
